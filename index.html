@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUA Commission Calculator by Alastair Gaban</title>
+    <title>TUA Commission Calculator</title>
 </head>
 <body>
-    <h2>TUA Commission Calculator by Alastair Gaban</h2>
+    <h2>TUA Commission Calculator</h2>
     
     <!-- Target Section -->
     <div>
@@ -64,12 +64,25 @@
     <h3>Results:</h3>
     <p id="individualPerformance">Individual Performance Commission: $0.00</p>
     <p id="totalCommission">Total Commission (including retention and revenue): $0.00</p>
+    
+    <!-- Additional Disclaimer -->
+    <p style="color: blue;">*Assumes 100% of Retention and Revenue targets are achieved and adds that to total commission.</p>
 
-    <p style="color: red;">*Disclaimer: There are several situations and reasons why particular enrolments may not count towards commission or targets, therefore this calculator was designed purely for forecasting and estimation purposes only and may not reflect the actual commission that will be paid.</p>
+    <!-- Accelerator Bracket Section -->
+    <div>
+        <h3>Accelerator Bracket</h3>
+        <p id="acceleratorBracket">Achieved Accelerator Bracket: N/A</p>
+    </div>
+
+    <!-- Updated Disclaimer -->
+    <p style="color: red;">*There are several situations and reasons why particular enrolments may not count towards commission or targets; therefore, this calculator was designed purely for forecasting and estimation purposes only and may not reflect the actual commission that will be paid.</p>
+
+    <!-- Credit -->
+    <p style="text-align: center; margin-top: 20px; font-weight: bold;">Created by Alastair Gaban 2024</p>
 
     <script>
         function updateAchievementPercentage() {
-            const target = document.getElementById("targetEnrolments").value;
+            const target = parseFloat(document.getElementById("targetEnrolments").value) || 0;
 
             // Sum all new enrolments
             const enrolments = parseInt(document.getElementById("diploma").value) +
@@ -96,6 +109,20 @@
             document.getElementById("achievementPercentage").innerText = "Achievement: " + achievementPercentage.toFixed(2) + "%";
         }
 
+        function getPerformanceModifier(targetAchievement) {
+            if (targetAchievement <= 59) return -1;
+            if (targetAchievement <= 69) return -0.5;
+            if (targetAchievement <= 79) return -0.2;
+            if (targetAchievement <= 89) return -0.1;
+            if (targetAchievement <= 94) return -0.05;
+            if (targetAchievement <= 100) return 0;
+            if (targetAchievement <= 105) return 0.05;
+            if (targetAchievement <= 110) return 0.1;
+            if (targetAchievement <= 120) return 0.2;
+            if (targetAchievement <= 130) return 0.3;
+            return 0.3 + (Math.floor((targetAchievement - 130) / 10) * 0.1);
+        }
+
         function calculateCommission() {
             // Define rates
             const rates = {
@@ -112,17 +139,17 @@
             };
 
             // Input values
-            const diploma = parseInt(document.getElementById("diploma").value);
-            const associateDegree = parseInt(document.getElementById("associateDegree").value);
-            const bachelorDegree = parseInt(document.getElementById("bachelorDegree").value);
-            const graduateCertificate = parseInt(document.getElementById("graduateCertificate").value);
-            const graduateDiploma = parseInt(document.getElementById("graduateDiploma").value);
-            const masterDegree = parseInt(document.getElementById("masterDegree").value);
-            const diplomaToAssociate = parseInt(document.getElementById("diplomaToAssociate").value);
-            const diplomaToBachelor = parseInt(document.getElementById("diplomaToBachelor").value);
-            const associateToBachelor = parseInt(document.getElementById("associateToBachelor").value);
-            const gradCertToMaster = parseInt(document.getElementById("gradCertToMaster").value);
-            const targetAchievement = parseFloat(document.getElementById("achievementPercentage").innerText.replace("Achievement: ", "").replace("%", ""));
+            const diploma = parseInt(document.getElementById("diploma").value) || 0;
+            const associateDegree = parseInt(document.getElementById("associateDegree").value) || 0;
+            const bachelorDegree = parseInt(document.getElementById("bachelorDegree").value) || 0;
+            const graduateCertificate = parseInt(document.getElementById("graduateCertificate").value) || 0;
+            const graduateDiploma = parseInt(document.getElementById("graduateDiploma").value) || 0;
+            const masterDegree = parseInt(document.getElementById("masterDegree").value) || 0;
+            const diplomaToAssociate = parseInt(document.getElementById("diplomaToAssociate").value) || 0;
+            const diplomaToBachelor = parseInt(document.getElementById("diplomaToBachelor").value) || 0;
+            const associateToBachelor = parseInt(document.getElementById("associateToBachelor").value) || 0;
+            const gradCertToMaster = parseInt(document.getElementById("gradCertToMaster").value) || 0;
+            const targetAchievement = parseFloat(document.getElementById("achievementPercentage").innerText.replace("Achievement: ", "").replace("%", "")) || 0;
 
             // Base commission calculation
             let individualCommission = (diploma * rates.diploma) + 
@@ -137,20 +164,12 @@
                                        (gradCertToMaster * rates.gradCertToMaster);
 
             // Apply target achievement modifier
-            let modifier = 1;
-            if (targetAchievement <= 59) modifier = -1;
-            else if (targetAchievement <= 69) modifier = -0.5;
-            else if (targetAchievement <= 79) modifier = -0.2;
-            else if (targetAchievement <= 89) modifier = -0.1;
-            else if (targetAchievement <= 94) modifier = -0.05;
-            else if (targetAchievement <= 100) modifier = 0;
-            else if (targetAchievement <= 105) modifier = 0.05;
-            else if (targetAchievement <= 110) modifier = 0.1;
-            else if (targetAchievement <= 120) modifier = 0.2;
-            else if (targetAchievement <= 130) modifier = 0.3;
-            else modifier += (Math.floor((targetAchievement - 130) / 10) * 0.1);
-
+            const modifier = getPerformanceModifier(targetAchievement);
             individualCommission = individualCommission * (1 + modifier);
+
+            // Display Accelerator Bracket
+            const acceleratorBracket = getAcceleratorBracket(targetAchievement);
+            document.getElementById("acceleratorBracket").innerText = "Achieved Accelerator Bracket: " + acceleratorBracket;
 
             // Final total commission with bonuses
             const teamRetentionBonus = 5000 / 3;
@@ -160,6 +179,20 @@
             // Display results
             document.getElementById("individualPerformance").innerText = "Individual Performance Commission: $" + individualCommission.toFixed(2);
             document.getElementById("totalCommission").innerText = "Total Commission (including retention and revenue): $" + totalCommission.toFixed(2);
+        }
+
+        function getAcceleratorBracket(targetAchievement) {
+            if (targetAchievement <= 59) return "-100%";
+            if (targetAchievement <= 69) return "-50%";
+            if (targetAchievement <= 79) return "-20%";
+            if (targetAchievement <= 89) return "-10%";
+            if (targetAchievement <= 94) return "-5%";
+            if (targetAchievement <= 100) return "0%";
+            if (targetAchievement <= 105) return "5%";
+            if (targetAchievement <= 110) return "10%";
+            if (targetAchievement <= 120) return "20%";
+            if (targetAchievement <= 130) return "30%";
+            return (0.3 + (Math.floor((targetAchievement - 130) / 10) * 0.1) * 100).toFixed(0) + "%";
         }
     </script>
 </body>
