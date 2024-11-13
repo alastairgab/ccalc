@@ -120,7 +120,7 @@
             if (targetAchievement <= 110) return 0.1;
             if (targetAchievement <= 120) return 0.2;
             if (targetAchievement <= 130) return 0.3;
-            return 0.3 + (Math.floor((targetAchievement - 130) / 10) * 0.1);
+            return (0.3 + (Math.floor((targetAchievement - 130) / 10) * 0.1));
         }
 
         function calculateCommission() {
@@ -192,7 +192,7 @@
             if (targetAchievement <= 110) return "10%";
             if (targetAchievement <= 120) return "20%";
             if (targetAchievement <= 130) return "30%";
-            return (0.3 + (Math.floor((targetAchievement - 130) / 10) * 0.1) * 100).toFixed(0) + "%";
+            return (Math.floor((targetAchievement - 100) / 10) * 10) + "%";  // Dynamically calculates over 130%
         }
     </script>
 </body>
